@@ -30,6 +30,7 @@
   | Author:    Lionel B. Dyck                                  |
   |                                                            |
   | History:  (most recent on top)                             |
+  |            07/29/20 LBD - delete temp d/s in case          |
   |            07/28/20 LBD - creation                         |
   |                                                            |
   * ---------------------------------------------------------- *
@@ -128,6 +129,9 @@
   then emds = "'"sysvar("syspref")".temp."emdd
   else emds = "'"sysvar("sysuid")".temp."emdd
   emdslib = emds"'"
+  call outtrap 'x.'
+  address tso 'delete' emdslib
+  call outtrap 'off'
   emds = emds"(edmac)'"
   Address TSO
   'alloc f('emdd') new space(1,1) tr recfm(v b) lrecl(255) blksize(0)' ,
@@ -136,8 +140,10 @@
   'altlib act app(exec) da('emdslib')'
 
   /* -------------------------------- *
+  | Setup error environment          |
   | Now invoke the inline edit macro |
   * -------------------------------- */
+  Address ISPExec 'control errors return'
   Address isredit
   '%edmac'
 
